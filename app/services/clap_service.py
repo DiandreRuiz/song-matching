@@ -22,7 +22,7 @@ class ClapService:
 
     def embed_audio(self, audio_path: str, sample_rate: int = 48000) -> np.ndarray:
         waveform, _ = librosa.load(audio_path, sr=sample_rate)
-        inputs = self.pre_processor(audios=waveform, sample_rate=sample_rate, return_tensors="pt")
+        inputs = self.pre_processor(audio=waveform, sample_rate=sample_rate, return_tensors="pt")
         with torch.no_grad():
             out = self.model.get_audio_features(**inputs)
             embedding = out.pooler_output
@@ -41,6 +41,6 @@ class ClapService:
 if __name__ == "__main__":
     settings = get_settings()
     clap = ClapService(settings.clap_model_id)
-    input_text = input("Test your input: ")
-    text_embed = clap.embed_text(input_text)
-    print(text_embed)
+    tom_path = "tom_drum.wav"
+    audio_embedding = clap.embed_audio(tom_path)
+    print(audio_embedding)
