@@ -43,8 +43,8 @@ def main() -> None:
         
     # Build FAISS index
     embedding_matrix = np.stack(embeddings)
-    dimension = embedding_matrix.shape[1] # 512
-    index = faiss.IndexFlatIP(dimension)
+    dimensionality = embedding_matrix.shape[1] # 512
+    index = faiss.IndexFlatIP(dimensionality) # Flat (brute force)
     index.add(embedding_matrix)
     
     # Store index & paths to disk
@@ -54,7 +54,6 @@ def main() -> None:
     with open(store_path / "paths.json", "w") as f:
         json.dumps(paths, f)
     
-
-
+    
 if __name__ == "__main__":
     main()
