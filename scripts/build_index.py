@@ -34,13 +34,11 @@ def main() -> None:
     for ext in ("*.wav", "*.mp3", "*.flac"):
         audio_files.extend(audio_dir.glob(ext))
     
-    # Embed all audio files
+    # Load audio in parallel + embed sequentially
     clap = ClapService(settings.clap_model_id)
-    embeddings = []
-    paths = []
-    for audio_file in audio_files:
-        paths.append(str(audio_file))
-        embeddings.append(clap.embed_audio(str(audio_file)))
+    results = clap.embed_audio([str(f) for f in audio_files])
+    paths = [path for path, _ in results]
+    embeddings = [embedding for _, embedding in results]
         
     # Build FAISS index
     embedding_matrix = np.stack(embeddings)
