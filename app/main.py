@@ -6,8 +6,9 @@ from pathlib import Path
 from app.config import get_settings
 from app.services.clap_service import ClapService
 
+import numpy as np
 import faiss
-from fastapi import FastAPI
+from fastapi import Depends, FastAPI, Request
 from pydantic import BaseModel, Field
 
 
@@ -52,14 +53,40 @@ class MatchResponse(BaseModel):
     matches: list[MatchItem]
 
 
+def get_clap(request: Request) -> ClapService:
+    return request.app.state.clap
+
+def get_index(request: Request) -> faiss.IndexFlatIP:
+    return request.app.state.index
+
+def get_paths(request: Request) -> list[str]:
+    return request.app.state.paths
+
+
 @app.get("/health")
 def health() -> dict[str, str]:
     return {"status": "ok"}
 
 
 @app.post("/match", response_model=MatchResponse)
-def match_mood(body: MoodRequest) -> MatchResponse:
-    """Retrieve top-k tracks for a natural-language mood query (retrieval not wired yet)."""
-    _ = get_settings()
-    
-    return MatchResponse(feeling=body.feeling, matches=[])
+def match_mood(
+    body: MoodRequest,
+    clap: ClapService = Depends(get_clap),
+    index: faiss.IndexFlatIP = Depends(get_index),
+    paths: list[str] = Depends(get_paths),
+) -> MatchResponse:
+    """Retrieve top-k tracks for a natural-language mood query."""
+    # Embed mood text into a query vector and reshape for FAISS (expects 2D)
+    query_embedding = clap.embed_text(body.feeling).reshape(1, -1)
+
+    # Search the index for the k nearest audio embeddings by similarity
+    similarity_scores, faiss_indices = index.search(query_embedding, body.k)
+
+    # Map FAISS positions back to song paths; skip -1 (empty slots when k > index size)
+    matches = [
+        MatchItem(path=paths[faiss_idx], score=float(similarity_score))
+        for similarity_score, faiss_idx in zip(similarity_scores[0], faiss_indices[0])
+        if faiss_idx != -1
+    ]
+
+    return MatchResponse(feeling=body.feeling, matches=matches)
