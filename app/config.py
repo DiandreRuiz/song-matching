@@ -7,9 +7,10 @@ class Settings(BaseSettings):
         env_file=".env",
         extra="ignore",
     )
-
-    clap_model_id: str = "laion/clap-htsat-unfused"
-    vector_store_path: str = "./data/vector_store"
+    vector_store_path: str
+    clap_model_id: str
+    songs_dir_path: str
+    
 
 @lru_cache
 def get_settings() -> Settings:

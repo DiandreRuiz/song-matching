@@ -21,8 +21,9 @@ def main() -> None:
     )
     parser.add_argument(
         "--audio-dir",
-        required=True,
-        help="Path to directory of audio files"
+        required=False,
+        help="Path to directory of audio files",
+        default=settings.songs_dir_path
     )
     
     args = parser.parse_args()
