@@ -53,7 +53,7 @@ def main() -> None:
     store_path.mkdir(parents=True, exist_ok=True)
     faiss.write_index(index, str(store_path / "index.faiss"))
     with open(store_path / "paths.json", "w") as f:
-        json.dumps(paths, f)
+        json.dump(paths, f)
     
     
 if __name__ == "__main__":
