@@ -9,7 +9,6 @@ from __future__ import annotations
 import numpy as np
 import torch
 import librosa
-from concurrent.futures import ThreadPoolExecutor
 from transformers import ClapModel, ClapProcessor
 from app.config import get_settings
 
@@ -22,21 +21,18 @@ class ClapService:
         self.model = ClapModel.from_pretrained(model_id)
         self.model.eval()
 
-    def embed_audio(self, audio_paths: list[str], sample_rate: int = 48000, chunk_seconds: int = 10, max_workers: int = 4) -> list[tuple[str, np.ndarray]]:
+    def embed_audio(self, audio_paths: list[str], sample_rate: int = 48000, chunk_seconds: int = 10) -> list[tuple[str, np.ndarray]]:
         """Embed one or more audio files of any length.
 
-        Loads files in parallel via threads (I/O bound), then embeds all
-        chunks in a single batched forward pass (CPU/GPU bound).
-        Returns a list of (path, embedding) tuples preserving input order.
+        Loads files sequentially, then embeds all chunks in a single batched
+        forward pass. Returns a list of (path, embedding) tuples preserving
+        input order.
         """
-        def _load(path: str) -> tuple[str, np.ndarray]:
-            """Read an audio file from disk and resample to the target rate."""
+        # Load and resample all audio files
+        loaded = []
+        for path in audio_paths:
             waveform, _ = librosa.load(path, sr=sample_rate)
-            return path, waveform
-
-        # Load and resample all audio files concurrently
-        with ThreadPoolExecutor(max_workers=max_workers) as pool:
-            loaded = list(pool.map(_load, audio_paths))
+            loaded.append((path, waveform))
 
         # Split each waveform into chunks, tracking which file each chunk belongs to
         all_chunks = []
