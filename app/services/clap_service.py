@@ -48,7 +48,7 @@ class ClapService:
             chunks = [waveform[i:i + chunk_size] for i in range(0, len(waveform), chunk_size)]
             chunks = [c for c in chunks if len(c) >= min_chunk_size]
 
-            inputs = self.pre_processor(audios=chunks, sampling_rate=sampling_rate, return_tensors="pt", padding=True)
+            inputs = self.pre_processor(audio=chunks, sampling_rate=sampling_rate, return_tensors="pt", padding=True)
             with torch.no_grad():
                 out = self.model.get_audio_features(**inputs)
                 projected = self.model.audio_projection(out.pooler_output)
