@@ -40,4 +40,6 @@ if __name__ == "__main__":
     test_match("dark and moody", k=3)
     test_match("happy upbeat summer vibes", k=3)
     test_match("chill lo-fi beats to relax to", k=5)
+    test_match("confident and swagger with a heavy rhythmic bounce", k=3)
+    test_match("aggressive and furious with raw screaming energy", k=3)
     print()
