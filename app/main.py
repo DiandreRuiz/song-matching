@@ -76,8 +76,11 @@ def match_mood(
     paths: list[str] = Depends(get_paths),
 ) -> MatchResponse:
     """Retrieve top-k tracks for a natural-language mood query."""
+    # Wrap the user's mood in a caption-style prompt to align with CLAP's training data
+    prompt = f"Music that sounds {body.feeling}"
+
     # Embed mood text into a query vector and reshape for FAISS (expects 2D)
-    query_embedding = clap.embed_text(body.feeling).reshape(1, -1)
+    query_embedding = clap.embed_text(prompt).reshape(1, -1)
 
     # Search the index for the k nearest audio embeddings by similarity
     similarity_scores, faiss_indices = index.search(query_embedding, body.k)

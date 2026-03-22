@@ -37,9 +37,34 @@ def test_match(feeling: str, k: int = 3) -> None:
 
 
 if __name__ == "__main__":
-    test_match("dark and moody", k=3)
-    test_match("happy upbeat summer vibes", k=3)
-    test_match("chill lo-fi beats to relax to", k=5)
-    test_match("confident and swagger with a heavy rhythmic bounce", k=3)
-    test_match("aggressive and furious with raw screaming energy", k=3)
+    test_match(
+        "Hard-hitting aggressive rap with deep booming bass, rattling hi-hats, "
+        "and a gritty, menacing beat that sounds like it belongs in a dark alley "
+        "at two in the morning, raw and unapologetic with heavy 808s shaking the speakers",
+        k=3,
+    )
+    test_match(
+        "Bright and radiant with warm acoustic guitars, hand claps, and a carefree "
+        "whistling melody that feels like sunshine pouring through an open window on "
+        "a lazy Sunday morning, pure joy and lighthearted energy from start to finish",
+        k=3,
+    )
+    test_match(
+        "Crushing distorted electric guitars with relentless double-kick drumming, "
+        "guttural screaming vocals, and a wall of feedback that feels like standing "
+        "in front of a massive amplifier stack while the floor shakes beneath you",
+        k=3,
+    )
+    test_match(
+        "Eerie and unsettling with dissonant strings, creeping low-frequency drones, "
+        "sudden jarring stabs of sound, and an atmosphere so tense and suffocating it "
+        "feels like something is watching you from the darkest corner of the room",
+        k=3,
+    )
+    test_match(
+        "Tender and intimate with a soft piano, gentle fingerpicked guitar, and a "
+        "warm breathy vocal floating over lush strings, delicate and vulnerable like "
+        "whispering sweet nothings in the quiet stillness of a candlelit room",
+        k=3,
+    )
     print()
