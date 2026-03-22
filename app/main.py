@@ -38,6 +38,7 @@ app = FastAPI(
 
 class MoodRequest(BaseModel):
     feeling: str = Field(..., min_length=1, max_length=4000)
+    k: int = Field(default=3, ge=1, le=20)
 
 
 class MatchItem(BaseModel):
@@ -60,4 +61,5 @@ def health() -> dict[str, str]:
 def match_mood(body: MoodRequest) -> MatchResponse:
     """Retrieve top-k tracks for a natural-language mood query (retrieval not wired yet)."""
     _ = get_settings()
+    
     return MatchResponse(feeling=body.feeling, matches=[])
