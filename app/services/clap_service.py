@@ -20,14 +20,23 @@ class ClapService:
         self.model = ClapModel.from_pretrained(model_id)
         self.model.eval()
 
-    def embed_audio(self, audio_path: str, sample_rate: int = 48000) -> np.ndarray:
+    def embed_audio(self, audio_path: str, sample_rate: int = 48000, chunk_seconds: int = 10) -> np.ndarray:
+        """Embed an audio file of any length by splitting into chunks and averaging.
+
+        Works for both short clips (single chunk) and full songs (multiple chunks).
+        """
         waveform, _ = librosa.load(audio_path, sr=sample_rate)
-        inputs = self.pre_processor(audio=waveform, sample_rate=sample_rate, return_tensors="pt")
-        with torch.no_grad():
-            out = self.model.get_audio_features(**inputs)
-            embedding = out.pooler_output
-        
-        return embedding.squeeze().numpy()
+        chunk_size = sample_rate * chunk_seconds
+        chunks = [waveform[i:i + chunk_size] for i in range(0, len(waveform), chunk_size)]
+
+        chunk_embeddings = []
+        for chunk in chunks:
+            inputs = self.pre_processor(audio=chunk, sample_rate=sample_rate, return_tensors="pt")
+            with torch.no_grad():
+                out = self.model.get_audio_features(**inputs)
+                chunk_embeddings.append(out.pooler_output.squeeze().numpy())
+
+        return np.mean(chunk_embeddings, axis=0)
 
     def embed_text(self, text: str) -> np.ndarray:
         inputs = self.pre_processor(text=[text], return_tensors="pt", padding=True)
