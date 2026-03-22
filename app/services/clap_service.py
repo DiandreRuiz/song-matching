@@ -4,13 +4,10 @@ CLAP service: owns model lifecycle and exposes audio/text embedding methods.
 Used by build_index.py (audio tower) and the /match endpoint (text tower).
 """
 
-from __future__ import annotations
-
 import numpy as np
 import torch
 import librosa
 from transformers import ClapModel, ClapProcessor
-from app.config import get_settings
 
 def _l2_normalize(v: np.ndarray) -> np.ndarray:
     """Scale a vector to unit length so inner product equals cosine similarity."""
@@ -67,12 +64,3 @@ class ClapService:
             embedding = out.pooler_output
 
         return _l2_normalize(embedding.squeeze().numpy())
-    
-    
-if __name__ == "__main__":
-    settings = get_settings()
-    clap = ClapService(settings.clap_model_id)
-    tom_path = "tom_drum.wav"
-    results = clap.embed_audio([tom_path])
-    for path, embedding in results:
-        print(f"{path}: {embedding}")

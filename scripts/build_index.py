@@ -1,7 +1,7 @@
 """
-Offline: scan audio directory, compute CLAP audio features, persist LangChain vector store.
+Offline: scan audio directory, compute CLAP embeddings, build FAISS index.
 
-Usage: python scripts/build_index.py --audio-dir ...
+Usage: python -m scripts.build_index [--audio-dir ...]
 """
 
 from __future__ import annotations

@@ -1,7 +1,6 @@
 fastapi[standard]
 uvicorn
 pydantic-settings
-langchain-community
 transformers
 librosa
 torch

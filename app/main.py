@@ -6,7 +6,6 @@ from pathlib import Path
 from app.config import get_settings
 from app.services.clap_service import ClapService
 
-import numpy as np
 import faiss
 from fastapi import Depends, FastAPI, Request
 from pydantic import BaseModel, Field
