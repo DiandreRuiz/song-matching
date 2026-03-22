@@ -48,11 +48,10 @@ class ClapService:
             chunks = [waveform[i:i + chunk_size] for i in range(0, len(waveform), chunk_size)]
             chunks = [c for c in chunks if len(c) >= min_chunk_size]
 
-            inputs = self.pre_processor(audio=chunks, sampling_rate=sampling_rate, return_tensors="pt", padding=True)
+            inputs = self.pre_processor(audios=chunks, sampling_rate=sampling_rate, return_tensors="pt", padding=True)
             with torch.no_grad():
                 out = self.model.get_audio_features(**inputs)
-                projected = self.model.audio_projection(out.pooler_output)
-                chunk_embeddings = projected.detach().numpy()
+                chunk_embeddings = out.pooler_output.numpy()
 
             file_embedding = _l2_normalize(np.mean(chunk_embeddings, axis=0))
             results.append((path, file_embedding))
@@ -61,13 +60,13 @@ class ClapService:
 
 
     def embed_text(self, text: str) -> np.ndarray:
-        """Embed a text string via CLAP's text tower into a normalized projected vector."""
+        """Embed a text string via CLAP's text tower into a normalized 512-d vector."""
         inputs = self.pre_processor(text=[text], return_tensors="pt", padding=True)
         with torch.no_grad():
             out = self.model.get_text_features(**inputs)
-            projected = self.model.text_projection(out.pooler_output)
+            embedding = out.pooler_output
 
-        return _l2_normalize(projected.squeeze().detach().numpy())
+        return _l2_normalize(embedding.squeeze().numpy())
     
     
 if __name__ == "__main__":
