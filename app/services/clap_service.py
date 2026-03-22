@@ -21,7 +21,7 @@ class ClapService:
         self.model = ClapModel.from_pretrained(model_id)
         self.model.eval()
 
-    def embed_audio(self, audio_paths: list[str], sample_rate: int = 48000, chunk_seconds: int = 10) -> list[tuple[str, np.ndarray]]:
+    def embed_audio(self, audio_paths: list[str], sampling_rate: int = 48000, chunk_seconds: int = 10) -> list[tuple[str, np.ndarray]]:
         """Embed one or more audio files of any length.
 
         Loads files sequentially, then embeds all chunks in a single batched
@@ -31,20 +31,20 @@ class ClapService:
         # Load and resample all audio files
         loaded = []
         for path in audio_paths:
-            waveform, _ = librosa.load(path, sr=sample_rate)
+            waveform, _ = librosa.load(path, sr=sampling_rate)
             loaded.append((path, waveform))
 
         # Split each waveform into chunks, tracking which file each chunk belongs to
         all_chunks = []
         chunk_to_file = []
         for file_idx, (_, waveform) in enumerate(loaded):
-            chunk_size = sample_rate * chunk_seconds
+            chunk_size = sampling_rate * chunk_seconds
             chunks = [waveform[i:i + chunk_size] for i in range(0, len(waveform), chunk_size)]
             all_chunks.extend(chunks)
             chunk_to_file.extend([file_idx] * len(chunks))
 
         # Batch all chunks into a single forward pass through the audio tower
-        inputs = self.pre_processor(audios=all_chunks, sampling_rate=sample_rate, return_tensors="pt", padding=True)
+        inputs = self.pre_processor(audio=all_chunks, sampling_rate=sampling_rate, return_tensors="pt", padding=True)
         with torch.no_grad():
             out = self.model.get_audio_features(**inputs)
             all_embeddings = out.pooler_output.numpy()
